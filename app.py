@@ -57,19 +57,20 @@ st.write("---")
 if st.button("Mulai Isi Form"):
     if not url_form or not url_form.startswith("http"):
         st.error("❌ Link Google Form tidak valid! Pastikan diawali dengan https://")
-    elif df is None or df.empty:
-        st.warning("⚠️ Silakan sediakan data responden (Upload Excel atau Tarik dari ClickHouse) terlebih dahulu!")
+    elif uploaded_file is None:
+        st.warning("⚠️ Silakan upload file Excel terlebih dahulu!")
     else:
-        # --- PROSES SELENIUM DIMULAI DARI SINI ---
-        if "Nama" in df.columns:
-            daftar_nama = df["Nama"].dropna().astype(str).tolist()
-        else:
-            daftar_nama = df.iloc[:, 1].dropna().astype(str).tolist()
+        try:
+            # Membaca file Excel langsung dari memory Streamlit
+            df = pd.read_excel(uploaded_file)
 
-        jumlah_pengiriman = len(daftar_nama)
-        st.success(f"📊 Total responden yang akan diisi: {jumlah_pengiriman} orang.")
-        
-        # ... (Lanjutkan dengan kode konfigurasi Selenium dan loop pengisian form seperti sebelumnya) ...
+            if "Nama" in df.columns:
+                daftar_nama = df["Nama"].dropna().astype(str).tolist()
+            else:
+                daftar_nama = df.iloc[:, 1].dropna().astype(str).tolist()
+
+            jumlah_pengiriman = len(daftar_nama)
+            st.success(f"📊 Total responden yang akan diisi: {jumlah_pengiriman} orang.")
 
             if jumlah_pengiriman == 0:
                 st.error("❌ Kolom nama kosong! Pastikan file Excel diisi dengan benar.")
