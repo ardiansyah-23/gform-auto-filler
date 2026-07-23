@@ -1,2 +1,4 @@
 chromium
 chromium-driver
+zlib1g-dev
+libjpeg-dev
