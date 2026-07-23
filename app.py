@@ -17,6 +17,24 @@ st.write("Aplikasi ini akan membaca file Excel dan mengisi Google Form secara ot
 # ==========================================
 url_form = st.text_input("🔗 Masukkan/Tempel Link Google Form target:", placeholder="https://docs.google.com/forms/...")
 
+st.write("---") # Garis pembatas
+
+# FITUR UNDUH TEMPLATE EXCEL
+st.write("💡 **Belum punya format Excel yang sesuai?**")
+try:
+    # Membaca file template.xlsx dari repositori GitHub
+    with open("template.xlsx", "rb") as template_file:
+        st.download_button(
+            label="📥 Unduh Template Excel",
+            data=template_file,
+            file_name="Template_Data_Kuesioner.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+except FileNotFoundError:
+    st.info("Catatan: File template.xlsx belum di-upload ke GitHub.")
+
+st.write("---") # Garis pembatas
+
 uploaded_file = st.file_uploader("📂 Upload file Excel (.xlsx / .xls)", type=["xlsx", "xls"])
 
 if st.button("Mulai Isi Form"):
