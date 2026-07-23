@@ -13,47 +13,30 @@ st.title("🚀 Bot Auto-Fill Google Form")
 st.write("Aplikasi ini akan membaca file Excel dan mengisi Google Form secara otomatis.")
 
 # ==========================================
-# 1. INPUT LINK & SUMBER DATA (STREAMLIT UI)
+# 1. INPUT LINK & FILE EXCEL (STREAMLIT UI)
 # ==========================================
-import clickhouse_connect # Tambahkan import ini di bagian atas file
-
 url_form = st.text_input("🔗 Masukkan/Tempel Link Google Form target:", placeholder="https://docs.google.com/forms/...")
-st.write("---")
 
-# Pilihan Sumber Data
-sumber_data = st.radio("Pilih sumber data responden:", ["Upload File Excel", "Tarik dari ClickHouse"])
+st.write("---") # Garis pembatas
 
-df = None # Siapkan variabel df kosong
+# FITUR UNDUH TEMPLATE EXCEL
+st.write("💡 **Belum punya format Excel yang sesuai?**")
+try:
+    # Membaca file template.xlsx dari repositori GitHub
+    with open("template.xlsx", "rb") as template_file:
+        st.download_button(
+            label="📥 Unduh Template Excel",
+            data=template_file,
+            file_name="Template_Data_Kuesioner.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+except FileNotFoundError:
+    st.info("Catatan: File template.xlsx belum di-upload ke GitHub.")
 
-if sumber_data == "Upload File Excel":
-    uploaded_file = st.file_uploader("📂 Upload file Excel (.xlsx / .xls)", type=["xlsx", "xls"])
-    if uploaded_file is not None:
-        df = pd.read_excel(uploaded_file)
+st.write("---") # Garis pembatas
 
-elif sumber_data == "Tarik dari ClickHouse":
-    st.info("Masukkan detail koneksi database ClickHouse kamu:")
-    col1, col2 = st.columns(2)
-    ch_host = col1.text_input("Host", placeholder="localhost atau IP server")
-    ch_port = col2.number_input("Port", value=8123)
-    ch_user = col1.text_input("Username", value="default")
-    ch_pass = col2.text_input("Password", type="password")
-    ch_table = st.text_input("Nama Tabel", placeholder="contoh: data_responden")
-    
-    if st.button("Ambil Data dari Database"):
-        try:
-            client = clickhouse_connect.get_client(host=ch_host, port=ch_port, username=ch_user, password=ch_pass)
-            # Menarik data dari ClickHouse dan langsung mengubahnya menjadi Pandas DataFrame
-            df = client.query_df(f"SELECT * FROM {ch_table}")
-            st.success(f"Berhasil menarik {len(df)} baris data dari database!")
-            st.dataframe(df.head()) # Tampilkan preview data
-        except Exception as e:
-            st.error(f"Gagal terhubung ke database: {e}")
+uploaded_file = st.file_uploader("📂 Upload file Excel (.xlsx / .xls)", type=["xlsx", "xls"])
 
-st.write("---")
-
-# ==========================================
-# TOMBOL MULAI EKSEKUSI
-# ==========================================
 if st.button("Mulai Isi Form"):
     if not url_form or not url_form.startswith("http"):
         st.error("❌ Link Google Form tidak valid! Pastikan diawali dengan https://")
