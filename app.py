@@ -41,23 +41,30 @@ if st.button("Mulai Isi Form"):
                 st.error("❌ Kolom nama kosong! Pastikan file Excel diisi dengan benar.")
                 st.stop()
 
-            # ==========================================
+          # ==========================================
             # 2. KONFIGURASI BROWSER SELENIUM UNTUK CLOUD
             # ==========================================
             st.info("🔧 Menyiapkan bot dan membuka browser di background...")
             
+            import os # Pastikan library os di-import
+            
             chrome_options = Options()
-            chrome_options.add_argument("--headless=new") # Wajib untuk Streamlit Cloud
+            chrome_options.add_argument("--headless=new") 
             chrome_options.add_argument("--no-sandbox")
             chrome_options.add_argument("--disable-dev-shm-usage")
             chrome_options.add_argument("--disable-gpu")
             chrome_options.add_argument("--window-size=1920,1080")
             chrome_options.add_argument("--lang=id")
 
-            driver = webdriver.Chrome(
-                service=Service(ChromeDriverManager().install()), options=chrome_options
-            )
+            # MENGATASI ERROR VERSI CHROMEDRIVER
+            # Jika file chromedriver ada di sistem linux (Streamlit Cloud), gunakan file tersebut
+            if os.path.exists("/usr/bin/chromedriver"):
+                service = Service("/usr/bin/chromedriver")
+            # Jika dijalankan di komputer lokalmu, tetap gunakan webdriver_manager
+            else:
+                service = Service(ChromeDriverManager().install())
 
+            driver = webdriver.Chrome(service=service, options=chrome_options)
             # Progress bar untuk memantau proses
             progress_bar = st.progress(0)
             status_text = st.empty()
